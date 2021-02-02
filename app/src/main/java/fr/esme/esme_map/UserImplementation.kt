@@ -32,7 +32,7 @@ class UserImplementation(val user: User, val appDatabase: AppDatabase) : UserInt
 
     override fun getMyPosition(): Position {
         //TODO ask GPS TD
-        return Position(2.3522219, 48.856614)
+        return Position(5.3522219, 76.856614)
     }
 
 

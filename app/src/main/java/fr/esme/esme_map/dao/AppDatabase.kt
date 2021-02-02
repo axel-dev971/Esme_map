@@ -15,4 +15,5 @@ import fr.esme.esme_map.model.User
 
 abstract class AppDatabase : RoomDatabase() {
     abstract fun poiDao(): POIDao
+    abstract fun userDao(): UserDao
 }

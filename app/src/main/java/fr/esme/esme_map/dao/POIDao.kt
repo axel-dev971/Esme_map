@@ -6,7 +6,7 @@ import fr.esme.esme_map.model.POI
 @Dao
 interface POIDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun createPOI(poi: POI)
 
     @Delete

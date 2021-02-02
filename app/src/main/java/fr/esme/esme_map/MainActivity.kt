@@ -21,12 +21,12 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
-import com.squareup.picasso.Picasso
 import fr.esme.esme_map.dao.AppDatabase
 import fr.esme.esme_map.interfaces.UserClickInterface
 import fr.esme.esme_map.model.POI
 import fr.esme.esme_map.model.Position
 import fr.esme.esme_map.model.User
+import fr.esme.esme_map.repository.POIRepository
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface {
 
@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface
         //affichage de la page général
         setContentView(R.layout.activity_main)
 
-        //affichage du bouton de la liste des amis ( ############# a changer pour avoir la liste des amis proche de nous ###############)
+        //affichage du bouton de la liste des amis ( ############# à changer pour avoir la liste des amis proche de nous ###############)
         findViewById<FloatingActionButton>(R.id.showFriendsButton).setOnClickListener {
             manageUserVisibility()
         }
@@ -90,6 +90,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+
+
         //Base de donnée interne au téléphone
         val db = Room.databaseBuilder(
             applicationContext,
@@ -97,6 +99,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface
         ).build()
 
 
+        //récupération du POI de la base de donnée firebase
+        POIRepository().getPOi(db)
 
         //vue général
         viewModel = MainActivityViewModel(db)
@@ -132,14 +136,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface
            )
        }
 
-        //requete de rafraichissement de la position renvoyée par le GPS
+        //requète de rafraichissement de la position renvoyée par le GPS
         val locationRequest = LocationRequest.create()?.apply {
             interval = 10000
             fastestInterval = 5000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
-        //fonction de rapelle apres la mise a jour de la position GPS, rafraichissement de la page
+        //fonction de rappel après la mise a jour de la position GPS, rafraichissement de la page
         var locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
@@ -156,7 +160,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface
         )
     }
 
-    //liste des positions des lieux
+    //liste des positions des activitées
     //TODO show POI
     fun showPOIs(POIs: List<POI>) {
         POIs?.forEach {
@@ -165,7 +169,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface
         }
     }
 
-    //affichage de la position d'un lieu
+    //affichage de la position d'une activitée
     fun showPOI(poi: POI) {
         mMap.addMarker(
             MarkerOptions().position(
@@ -181,7 +185,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface
     //TODO show MyPosition
     fun showMyPosition(position: Position) {
 
-        //mettre une condition sur la paosition pour eviter le rafraichissement de la page à chaque requète
+        //mettre une condition sur la position pour éviter le rafraichissement de la page à chaque requète
 
         val myPos = LatLng(position.latitude, position.longitude)
 
@@ -256,7 +260,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface
         mMap.clear()
     }
 
-    //activation de la page d'ajout d'une activité
+    //activation de la vue d'ajout d'une activitée
     override fun OnUserClick(user: User) {
 
         Log.d("ADAPTER", user.username)
