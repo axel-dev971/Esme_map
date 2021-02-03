@@ -18,6 +18,7 @@ import fr.esme.esme_map.model.Category
 import fr.esme.esme_map.model.POI
 import fr.esme.esme_map.model.Position
 import fr.esme.esme_map.model.User
+import fr.esme.esme_map.repository.POIRepository
 import java.util.*
 
 class CreatePOIFragment : Fragment() {
@@ -53,6 +54,7 @@ class CreatePOIFragment : Fragment() {
             //TODO REcuperer depuis le formulaire
 
             var poi: POI = POI(
+                //################# peut etre à changer par un identifiant plus simple ######################################################################
                 Any().hashCode(),
                 //User("JP"),
                 editiText?.text.toString(),
@@ -61,11 +63,16 @@ class CreatePOIFragment : Fragment() {
                // Category("Culture", Color())
             )
 
-
+            System.out.println(poi.uid)
+            System.out.println("\n\n")
 
             var string = Gson().toJson(poi)
+            System.out.println(string)
 
             val intent = Intent().putExtra("poi", string)
+
+            POIRepository().addPOI( poi)
+
             activity?.setResult(1, intent)
 
             //Close activity

@@ -9,6 +9,8 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -27,252 +29,68 @@ import fr.esme.esme_map.model.POI
 import fr.esme.esme_map.model.Position
 import fr.esme.esme_map.model.User
 import fr.esme.esme_map.repository.POIRepository
+import fr.esme.esme_map.ui.main.ConnexionFragment
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface {
-
-    private val TAG = MainActivity::class.qualifiedName
-    private lateinit var mMap: GoogleMap
-    private lateinit var viewModel: MainActivityViewModel
-    private var isFriendShow = true
-
-
-    private val POI_ACTIVITY = 1
-    private val USER_ACTIVITY = 2
-    private lateinit var fusedLocationClient : FusedLocationProviderClient
-
-    //génération de la carte depuis GoogleMap
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        viewModel.getPOIFromViewModel()
-        viewModel.getPositionFromViewModel()
-
-        mMap.setOnMapClickListener {
-
-            val intent = Intent(this, CreatePOIActivity::class.java).apply {
-                putExtra("LATLNG", it)
-            }
-
-            //activation de la vue avec la map
-            startActivityForResult(intent, POI_ACTIVITY)
-
-
-        }
-
-    }
-
-    //
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == POI_ACTIVITY) {
-            var t = data?.getStringExtra("poi")
-            var poi = Gson().fromJson<POI>(t, POI::class.java)
-            viewModel.savePOI(poi)
-            showPOI(Gson().fromJson<POI>(t, POI::class.java))
-        }
-    }
-
-
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate")
+        setContentView(R.layout.user_connexion)
 
-        //affichage de la page général
-        setContentView(R.layout.activity_main)
+        //injecter le fragment dans notre boite (fragment_container)
+        val transaction = supportFragmentManager.beginTransaction() //instantiation de la classe
+        transaction.replace(R.id.fragement_connexion, ConnexionFragment(this)) // on lui indique par quoi on veut remplacer le fragment container
+        transaction.addToBackStack(null) // nulle car on ne veut pas de retour
+        transaction.commit()
 
-        //affichage du bouton de la liste des amis ( ############# à changer pour avoir la liste des amis proche de nous ###############)
-        findViewById<FloatingActionButton>(R.id.showFriendsButton).setOnClickListener {
-            manageUserVisibility()
+        //charger notre plante repository pour la connection à la base de donnée
+        //val repo = UserRepository()
+
+        //mettre à jour la liste de plantes
+        //repo.updateData{
+            //injecter le fragment dans notre boite (fragment_container)
+
+        //}
+
+
+
+    }
+
+    /*override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        val enterText = activity?.findViewById<EditText>(R.id.POINameEditText)
+
+        activity?.findViewById<Button>(R.id.validateButton)?.setOnClickListener {
+
+
+            //TODO REcuperer depuis le formulaire
+
+            var poi: POI = POI(
+                //################# peut etre à changer par un identifiant plus simple ######################################################################
+                Any().hashCode(),
+                //User("JP"),
+                editiText?.text.toString(),
+                5,
+                Position(viewModel.latlng.latitude, viewModel.latlng.longitude),
+                // Category("Culture", Color())
+            )
+
+            System.out.println(poi.uid)
+            System.out.println("\n\n")
+
+            var string = Gson().toJson(poi)
+            System.out.println(string)
+
+            val intent = Intent().putExtra("poi", string)
+
+            POIRepository().addPOI( poi)
+
+            activity?.setResult(1, intent)
+
+            //Close activity
+            activity?.finish()
+
         }
+    }*/
 
-        //affichage de maniere asynchrone de la carte dans la vue
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-
-
-
-        //Base de donnée interne au téléphone
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "database-name"
-        ).build()
-
-
-        //récupération du POI de la base de donnée firebase
-        POIRepository().getPOi(db)
-
-        //vue général
-        viewModel = MainActivityViewModel(db)
-
-        //affichage des positions sur la vue
-        viewModel.poisLiveData.observe(this, { listPOIs ->
-            showPOIs(listPOIs)
-        })
-
-        //affichage de ma position sur la vue
-        viewModel.myPositionLiveData.observe(this, { position ->
-            showMyPosition(position)
-        })
-
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-       ) {
-
-           this.requestPermissions(
-               arrayOf<String>(
-                   Manifest.permission.ACCESS_FINE_LOCATION,
-                   Manifest.permission.ACCESS_COARSE_LOCATION
-               ), 1
-           )
-       }
-
-        //requète de rafraichissement de la position renvoyée par le GPS
-        val locationRequest = LocationRequest.create()?.apply {
-            interval = 10000
-            fastestInterval = 5000
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
-
-        //fonction de rappel après la mise a jour de la position GPS, rafraichissement de la page
-        var locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
-                locationResult ?: return
-                for (location in locationResult.locations){
-                    showMyPosition(Position(location.latitude, location.longitude))
-                }
-            }
-        }
-
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
-    }
-
-    //liste des positions des activitées
-    //TODO show POI
-    fun showPOIs(POIs: List<POI>) {
-        POIs?.forEach {
-            val poiPos = LatLng(it.position.latitude, it.position.longitude)
-            mMap.addMarker(MarkerOptions().position(poiPos).title(it.name))
-        }
-    }
-
-    //affichage de la position d'une activitée
-    fun showPOI(poi: POI) {
-        mMap.addMarker(
-            MarkerOptions().position(
-                LatLng(
-                    poi.position.latitude,
-                    poi.position.longitude
-                )
-            ).title(poi.name)
-        )
-    }
-
-    //affichage de ma position par une pastille noir
-    //TODO show MyPosition
-    fun showMyPosition(position: Position) {
-
-        //mettre une condition sur la position pour éviter le rafraichissement de la page à chaque requète
-
-        val myPos = LatLng(position.latitude, position.longitude)
-
-
-        val circleOptions = CircleOptions()
-        circleOptions.center(myPos)
-        circleOptions.radius(80.0)
-        circleOptions.strokeColor(Color.WHITE)
-        circleOptions.fillColor(Color.BLACK)
-        circleOptions.strokeWidth(6f)
-
-        if(this::myPositionCircle.isInitialized) {
-            myPositionCircle.remove()
-        }
-        myPositionCircle =  mMap.addCircle(circleOptions)
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPos, 14f))
-    }
-
-    lateinit var myPositionCircle : Circle
-
-    //TODO show Travel
-
-    //TODO show USer
-    fun manageUserVisibility() {
-
-        if (isFriendShow) {
-            isFriendShow = false
-            findViewById<ListView>(R.id.friendsListRecyclerview).visibility = View.INVISIBLE
-        } else {
-            isFriendShow = true
-
-            var friends = viewModel.getUsers()
-
-            val adapter = FriendsAdapter(this, ArrayList(friends))
-            findViewById<ListView>(R.id.friendsListRecyclerview).adapter = adapter
-
-
-            findViewById<ListView>(R.id.friendsListRecyclerview).visibility = View.VISIBLE
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Log.d(TAG, "onStart")
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG, "onResume")
-    }
-
-    var myPosition : Location? = null
-
-    override fun onStop() {
-        super.onStop()
-        Log.d(TAG, "onStop")
-
-    }
-
-
-    override fun onPause() {
-        super.onPause()
-        Log.d(TAG, "onPause")
-
-    }
-
-    override fun onDestroy() {
-        Log.d(TAG, "onDestroy")
-        super.onDestroy()
-
-        mMap.clear()
-    }
-
-    //activation de la vue d'ajout d'une activitée
-    override fun OnUserClick(user: User) {
-
-        Log.d("ADAPTER", user.username)
-
-        val intent = Intent(this, UserActivity::class.java).apply {
-            putExtra("USER", Gson().toJson(user))
-        }
-
-        //activation de la vue d'ajout d'activité
-        startActivityForResult(intent, USER_ACTIVITY)
-
-
-
-    }
 }

@@ -22,37 +22,17 @@ class POIRepository {
         val POIList = arrayListOf<POI>()
     }
 
-    fun updateData(callback: (poi: POI) -> Unit){
-        //absorber les données depuis la base de donnée -> liste de plantes
-        databasePOIRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                //retirer les anciennes
-                POIList.clear()
-
-                //récolter la liste
-                for (ds in snapshot.children){
-                    //construire un objet Plante
-                     var poi = ds.getValue(POI::class.java)
-
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
-
-        })
-    }
-
+    // fonction de renvoi de tout les POIs
     fun getPOi(db: AppDatabase) {
 
         databasePOIRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 //retirer les anciennes
-                POIList.clear()
+                //POIList.clear()
 
                 //récolter la liste
                 for (ds in snapshot.children) {
-                    //construire un objet Plante
-                   // var poi = ds.getValue(POI::class.java)
+                    //var poi = ds.getValue(POI::class.java)
                    var poi = Gson().fromJson(ds.value.toString(),POI::class.java)
                     poi?.let {
                         thread {
@@ -65,8 +45,16 @@ class POIRepository {
         })
     }
 
-    //mettre a jour un objet plante en bdd
+
+
+    //mise à jour d'un POI
     fun updatePOI(poi: POI){
+        databasePOIRef.child(poi.uid.toString()).setValue(poi)
+    }
+
+    //ajout d'un POI
+    fun addPOI(poi: POI){
+        //System.out.println(poi)
         databasePOIRef.child(poi.uid.toString()).setValue(poi)
     }
 
