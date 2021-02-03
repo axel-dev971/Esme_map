@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "685006605341",
+    "project_id": "esme-map",
+    "storage_bucket": "esme-map.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:685006605341:android:5f7c67736f87f69dbf4af4",
+        "android_client_info": {
+          "package_name": "fr.esme.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "685006605341-kimt8nl7ldfldpb239v3lssiu5ru6l6k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBT7Bdt8TcDZ8O8TYYW8YBxZo5hyeYmPf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "685006605341-kimt8nl7ldfldpb239v3lssiu5ru6l6k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
