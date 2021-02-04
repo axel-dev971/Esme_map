@@ -16,6 +16,9 @@ class ConnexionFragment(private val context: MainActivity) : Fragment() {
 
     private val MAP_ACTIVITY = 3
 
+
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
