@@ -56,10 +56,11 @@ class MainActivityViewModel(private val appDatabase: AppDatabase) : ViewModel() 
     }
 
     //récupération des position dans la vue model
-    fun getPOIFromViewModel() { //TODO add filtre
+    fun getPOIFromViewModel(username: String) { //TODO add filtre
         Thread(
             Runnable {
-                poisLiveData.postValue(userInterface.getPOIs())//json
+               // System.out.println( poisLiveData.postValue(userInterface.getUserPOIs(username)))
+               //poisLiveData.postValue(userInterface.getUserPOIs(username))//json
             }).start()
     }
 

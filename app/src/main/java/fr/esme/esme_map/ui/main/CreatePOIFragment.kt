@@ -63,15 +63,12 @@ class CreatePOIFragment : Fragment() {
                // Category("Culture", Color())
             )
 
-            System.out.println(poi.uid)
-            System.out.println("\n\n")
 
             var string = Gson().toJson(poi)
-            System.out.println(string)
 
             val intent = Intent().putExtra("poi", string)
 
-            POIRepository().addPOI( poi)
+            POIRepository().addPOI("Axel",poi)
 
             activity?.setResult(1, intent)
 

@@ -23,6 +23,9 @@ import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import fr.esme.esme_map.dao.AppDatabase
 import fr.esme.esme_map.interfaces.UserClickInterface
@@ -30,6 +33,8 @@ import fr.esme.esme_map.model.POI
 import fr.esme.esme_map.model.Position
 import fr.esme.esme_map.model.User
 import fr.esme.esme_map.repository.POIRepository
+import fr.esme.esme_map.repository.UserRepository
+import fr.esme.esme_map.ui.main.ConnexionFragment
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface {
 
@@ -46,8 +51,33 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
     //génération de la carte depuis GoogleMap
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        viewModel.getPOIFromViewModel()
+        //viewModel.getPOIFromViewModel("Axel")  //############################### a changer ######################################"
         viewModel.getPositionFromViewModel()
+
+        //Initialisation des POIs de l'utilisateur connecté sur la map
+        POIRepository.Singleton.databasePOIRef.child(ConnexionFragment.Singleton.UserCurrent).addListenerForSingleValueEvent(object :
+            ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                //UserPOIList.clear()
+                //recherche item par item dans la base de donnée
+                for (ds in snapshot.children) {
+                    var poi = Gson().fromJson(ds.value.toString(),POI::class.java)
+
+                    if (poi != null ){
+                        val position = ds.child("position")
+                        val latitude = position.child("latitude").value.toString()
+                        val longitude = position.child("longitude").value.toString()
+                        val name = ds.child("name").value.toString()
+
+                        val poiPos = LatLng(latitude.toDouble(), longitude.toDouble())
+                        mMap.addMarker(MarkerOptions().position(poiPos).title(name))
+                    }
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
 
         mMap.setOnMapClickListener {
 
@@ -57,10 +87,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
 
             //activation de la vue avec la map
             startActivityForResult(intent, POI_ACTIVITY)
-
-
         }
-
     }
 
     //
@@ -94,7 +121,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
         mapFragment.getMapAsync(this)
 
 
-
         //Base de donnée interne au téléphone
         val db = Room.databaseBuilder(
             applicationContext,
@@ -102,18 +128,21 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
         ).build()
 
 
-        //récupération du POI de la base de donnée firebase
-        POIRepository().getPOi(db)
+        //Récupération du POI de la base de donnée firebase relatant à l'utilisateur
+        //POIRepository().getUserPOi("Axel")
 
         //vue général
         viewModel = MainActivityViewModel(db)
 
-        //affichage des positions sur la vue
-        viewModel.poisLiveData.observe(this, { listPOIs ->
+        //Raffraissement et affichage des positions sur la vue
+       /* viewModel.poisLiveData.observe(this, { listPOIs ->
             showPOIs(listPOIs)
-        })
+        })*/
 
-        //affichage de ma position sur la vue
+        //Implémentation des POIs avec la base de donnée Firebase
+
+
+        //Raffraissement etaffichage de ma position sur la vue
         viewModel.myPositionLiveData.observe(this, { position ->
             showMyPosition(position)
         })
@@ -163,16 +192,17 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
         )
     }
 
-    //liste des positions des activitées
+    //liste des positions des points d'activitées
     //TODO show POI
-    fun showPOIs(POIs: List<POI>) {
+    /*fun showPOIs(POIs: List<POI>) {
+        System.out.println("POIs"+ POIRepository.Singleton.UserPOIList)
         POIs?.forEach {
             val poiPos = LatLng(it.position.latitude, it.position.longitude)
             mMap.addMarker(MarkerOptions().position(poiPos).title(it.name))
         }
-    }
+    }*/
 
-    //affichage de la position d'une activitée
+    //affichage de la position des activitées relevant d'un utilisateur
     fun showPOI(poi: POI) {
         mMap.addMarker(
             MarkerOptions().position(
@@ -192,12 +222,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
 
         val myPos = LatLng(position.latitude, position.longitude)
 
-
         val circleOptions = CircleOptions()
         circleOptions.center(myPos)
         circleOptions.radius(80.0)
         circleOptions.strokeColor(Color.WHITE)
-        circleOptions.fillColor(Color.BLACK)
+        circleOptions.fillColor(Color.BLUE)
         circleOptions.strokeWidth(6f)
 
         if(this::myPositionCircle.isInitialized) {
@@ -233,7 +262,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart")
-
     }
 
     override fun onResume() {
@@ -246,20 +274,17 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
     override fun onStop() {
         super.onStop()
         Log.d(TAG, "onStop")
-
     }
 
 
     override fun onPause() {
         super.onPause()
         Log.d(TAG, "onPause")
-
     }
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
         super.onDestroy()
-
         mMap.clear()
     }
 
@@ -274,9 +299,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
 
         //activation de la vue d'ajout d'activité
         startActivityForResult(intent, USER_ACTIVITY)
-
-
-
     }
+
 
 }

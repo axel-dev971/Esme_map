@@ -3,13 +3,21 @@ package fr.esme.esme_map
 import fr.esme.esme_map.dao.AppDatabase
 import fr.esme.esme_map.interfaces.UserInterface
 import fr.esme.esme_map.model.*
+import fr.esme.esme_map.repository.POIRepository
 
 class UserImplementation(val user: User, val appDatabase: AppDatabase) : UserInterface {
 
+    //Récupération et implémantation de la liste des POI
     override fun getPOIs(): List<POI> {
         return appDatabase.poiDao().getPOIs()
     }
 
+    //Récupération et implémantation de la liste des POIs d'un utilisateur
+    /*override fun getUserPOIs(username: String): List<POI> {
+        return POIRepository().getUserPOi(username)
+    }*/
+
+    //Récupération et implémantation de la liste des POIs pour la création d'une course
     override fun getRuns(): List<Run> {
         //TODO call network  ===> DB distance ===> DB ====> Code
         return listOf(
