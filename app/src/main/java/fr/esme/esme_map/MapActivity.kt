@@ -1,6 +1,7 @@
 package fr.esme.esme_map
 
 import android.Manifest
+import android.R.attr.name
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -36,13 +37,14 @@ import fr.esme.esme_map.repository.POIRepository
 import fr.esme.esme_map.repository.UserRepository
 import fr.esme.esme_map.ui.main.ConnexionFragment
 
+
 class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface {
 
     private val TAG = MainActivity::class.qualifiedName
     private lateinit var mMap: GoogleMap
     private lateinit var viewModel: MainActivityViewModel
     private var isFriendShow = true
-
+    private var myPosInitial = LatLng(0.0, 0.0)
 
     private val POI_ACTIVITY = 1
     private val USER_ACTIVITY = 2
@@ -52,19 +54,18 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         //viewModel.getPOIFromViewModel("Axel")  //############################### a changer ######################################"
-        viewModel.getPositionFromViewModel()
+       //viewModel.getPositionFromViewModel()
+
 
         //Initialisation des POIs de l'utilisateur connecté sur la map
-        POIRepository.Singleton.databasePOIRef.child(ConnexionFragment.Singleton.UserCurrent).addListenerForSingleValueEvent(object :
-            ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
+        POIRepository.Singleton.databasePOIRef.child(ConnexionFragment.Singleton.UserCurrent).addListenerForSingleValueEvent(
+            object :
+                ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
 
-                //UserPOIList.clear()
-                //recherche item par item dans la base de donnée
-                for (ds in snapshot.children) {
-                    var poi = Gson().fromJson(ds.value.toString(),POI::class.java)
+                    //recherche item par item dans la base de donnée
+                    for (ds in snapshot.children) {
 
-                    if (poi != null ){
                         val position = ds.child("position")
                         val latitude = position.child("latitude").value.toString()
                         val longitude = position.child("longitude").value.toString()
@@ -72,13 +73,15 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
 
                         val poiPos = LatLng(latitude.toDouble(), longitude.toDouble())
                         mMap.addMarker(MarkerOptions().position(poiPos).title(name))
+
                     }
                 }
-            }
-            override fun onCancelled(error: DatabaseError) {}
-        })
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
 
 
+        //Ecouteur sur la carte pour activer la vue d'ajout de POI
         mMap.setOnMapClickListener {
 
             val intent = Intent(this, CreatePOIActivity::class.java).apply {
@@ -112,7 +115,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
 
         //affichage du bouton de la liste des amis ( ############# à changer pour avoir la liste des amis proche de nous ###############)
         findViewById<FloatingActionButton>(R.id.showFriendsButton).setOnClickListener {
-            manageUserVisibility()
+            UserRepository().getFriends {
+                manageUserVisibility()
+            }
+
         }
 
         //affichage de maniere asynchrone de la carte dans la vue
@@ -120,13 +126,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-
         //Base de donnée interne au téléphone
         val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "database-name"
         ).build()
-
 
         //Récupération du POI de la base de donnée firebase relatant à l'utilisateur
         //POIRepository().getUserPOi("Axel")
@@ -139,10 +143,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
             showPOIs(listPOIs)
         })*/
 
-        //Implémentation des POIs avec la base de donnée Firebase
-
-
-        //Raffraissement etaffichage de ma position sur la vue
+        //Raffraissement et affichage de ma position sur la vue
         viewModel.myPositionLiveData.observe(this, { position ->
             showMyPosition(position)
         })
@@ -176,7 +177,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
         }
 
         //fonction de rappel après la mise a jour de la position GPS, rafraichissement de la page
-        var locationCallback = object : LocationCallback() {
+       var locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 locationResult ?: return
                 for (location in locationResult.locations){
@@ -194,13 +195,13 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
 
     //liste des positions des points d'activitées
     //TODO show POI
-    /*fun showPOIs(POIs: List<POI>) {
-        System.out.println("POIs"+ POIRepository.Singleton.UserPOIList)
+    fun showPOIs(POIs: List<POI>) {
+        System.out.println("POIs" + POIRepository.Singleton.UserPOIList)
         POIs?.forEach {
             val poiPos = LatLng(it.position.latitude, it.position.longitude)
             mMap.addMarker(MarkerOptions().position(poiPos).title(it.name))
         }
-    }*/
+    }
 
     //affichage de la position des activitées relevant d'un utilisateur
     fun showPOI(poi: POI) {
@@ -219,21 +220,29 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
     fun showMyPosition(position: Position) {
 
         //mettre une condition sur la position pour éviter le rafraichissement de la page à chaque requète
-
         val myPos = LatLng(position.latitude, position.longitude)
 
-        val circleOptions = CircleOptions()
-        circleOptions.center(myPos)
-        circleOptions.radius(80.0)
-        circleOptions.strokeColor(Color.WHITE)
-        circleOptions.fillColor(Color.BLUE)
-        circleOptions.strokeWidth(6f)
+        if (myPosInitial != myPos){
+            myPosInitial = myPos
+            UserRepository().UpdateMyPosition(position.latitude, position.longitude)
 
-        if(this::myPositionCircle.isInitialized) {
-            myPositionCircle.remove()
+            //création du point de position
+            val circleOptions = CircleOptions()
+            circleOptions.center(myPos)
+            circleOptions.radius(80.0)
+            circleOptions.strokeColor(Color.WHITE)
+            circleOptions.fillColor(Color.BLUE)
+            circleOptions.strokeWidth(6f)
+
+            if(this::myPositionCircle.isInitialized) {
+                myPositionCircle.remove()
+            }
+
+            myPositionCircle =  mMap.addCircle(circleOptions)
+
+            //zoom et recentrage de la vue sur la position
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPos, 14f))
         }
-        myPositionCircle =  mMap.addCircle(circleOptions)
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPos, 14f))
     }
 
     lateinit var myPositionCircle : Circle
@@ -241,6 +250,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
     //TODO show Travel
 
     //TODO show USer
+    //condition sur l'affichage du selecteur d'amis
     fun manageUserVisibility() {
 
         if (isFriendShow) {
@@ -249,13 +259,16 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, UserClickInterface 
         } else {
             isFriendShow = true
 
-            var friends = viewModel.getUsers()
+            //affichage de la liste d'amis
+            // var friends = viewModel.getUsers     OLD VERSION
 
-            val adapter = FriendsAdapter(this, ArrayList(friends))
+            //NEW VERSION
+            //Recherche de la liste des utilisateurs amis
+            val adapter = FriendsAdapter(this, UserRepository.Singleton.FriendsList)
             findViewById<ListView>(R.id.friendsListRecyclerview).adapter = adapter
 
 
-            findViewById<ListView>(R.id.friendsListRecyclerview).visibility = View.VISIBLE
+           findViewById<ListView>(R.id.friendsListRecyclerview).visibility = View.VISIBLE
         }
     }
 

@@ -3,8 +3,13 @@ package fr.esme.esme_map.repository
 import com.google.firebase.database.*
 import com.google.gson.Gson
 import fr.esme.esme_map.dao.AppDatabase
+import fr.esme.esme_map.model.POI
 import fr.esme.esme_map.model.User
+import fr.esme.esme_map.repository.UserRepository.Singleton.FriendsList
+import fr.esme.esme_map.repository.UserRepository.Singleton.UserList
 import fr.esme.esme_map.repository.UserRepository.Singleton.databaseUserRef
+import fr.esme.esme_map.ui.main.ConnexionFragment
+import javax.security.auth.callback.Callback
 import kotlin.concurrent.thread
 
 
@@ -20,23 +25,33 @@ class UserRepository {
 
         //créer une liste qui contient nos plantes
         val UserList = arrayListOf<User>()
+        val FriendsList = arrayListOf<User>()
     }
 
     // fonction de renvoi de tout les utiliseateurs
-    fun getUser(db: AppDatabase) {
+    fun getFriends(callback: () -> Unit) {
 
         databaseUserRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                //retirer les anciennes
+                FriendsList.clear()
 
                 //récolter la liste
-                for (ds in snapshot.children) {
-                    var user = Gson().fromJson(ds.value.toString(), User::class.java)
-                    user?.let {
-                        thread {
-                            db.userDao().createUser(it)
+                for (ds in snapshot.children){
+                    //construire un objet Plante
+
+                    if (ConnexionFragment.Singleton.UserCurrent != ds.child("username").value){
+                        val user = ds.getValue(User::class.java)
+
+                        //verifier que la plant n'est pas null
+                        if (user != null ){
+                            //ajouter la plante à notre liste
+                            FriendsList.add(user)
                         }
                     }
+
                 }
+                callback()
             }
 
             override fun onCancelled(error: DatabaseError) {}
@@ -48,6 +63,13 @@ class UserRepository {
     //mise à jour d'un utilisateur
     fun updateUser(user: User){
         databaseUserRef.child(user.username.toString()).setValue(user)
+    }
+
+    fun UpdateMyPosition(latitude : Double, longitude : Double){
+        databaseUserRef.child(ConnexionFragment.Singleton.UserCurrent).child("myPostion").removeValue()
+        databaseUserRef.child(ConnexionFragment.Singleton.UserCurrent).child("myPostion").child("latitude").setValue(latitude)
+        databaseUserRef.child(ConnexionFragment.Singleton.UserCurrent).child("myPostion").child("longitude").setValue(longitude)
+
     }
 
     //ajout d'un utilisateur

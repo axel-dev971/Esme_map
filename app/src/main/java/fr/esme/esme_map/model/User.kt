@@ -5,8 +5,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-class User(
-    @PrimaryKey var username: String){
+class User(){
+    @PrimaryKey
+    lateinit var username: String
     @ColumnInfo(name = "imageUrl") var imageUrl: String = "https://vignette.wikia.nocookie.net/heros/images/f/f7/Ace_Infobox.png/revision/latest?cb=20200621201542&path-prefix=fr"
+    @ColumnInfo(name = "myPosition") lateinit var position: Position
 
 }
+
+

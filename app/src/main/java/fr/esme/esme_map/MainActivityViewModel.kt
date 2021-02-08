@@ -10,9 +10,9 @@ import fr.esme.esme_map.model.User
 
 class MainActivityViewModel(private val appDatabase: AppDatabase) : ViewModel() {
 
-    private val user = User("JP") //Me
-    private val userInterface: UserInterface =
-        UserImplementation(user, appDatabase) // HEAVY NETWORK TASK
+   // private val user = User("JP") //Me
+    //private val userInterface: UserInterface =
+       // UserImplementation(user, appDatabase) // HEAVY NETWORK TASK
 
 
     val poisLiveData: MutableLiveData<List<POI>> by lazy {
@@ -64,18 +64,18 @@ class MainActivityViewModel(private val appDatabase: AppDatabase) : ViewModel() 
             }).start()
     }
 
-    //enregistrement dans la base de donnée
+    //enregistrement dans la base de donnée interne du téléphone
     fun savePOI(poi: POI) {
         Thread(
             Runnable {
-                appDatabase.poiDao().createPOI(poi)
+                //appDatabase.poiDao().createPOI(poi)
             }).start()
     }
 
-    //récuperation des utilisateurs
-    fun getUsers(): List<User> {
-        return userInterface.getUsers()
-    }
+    //récuperation de la utilisateurs amis à l'utilisateur connecté
+    //fun getUsers(): List<User> {
+        //return userInterface.getUsers()
+    //}
 
 
 }

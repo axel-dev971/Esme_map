@@ -8,9 +8,9 @@ import fr.esme.esme_map.repository.POIRepository
 class UserImplementation(val user: User, val appDatabase: AppDatabase) : UserInterface {
 
     //Récupération et implémantation de la liste des POI
-    override fun getPOIs(): List<POI> {
+    /*override fun getPOIs(): List<POI> {
         return appDatabase.poiDao().getPOIs()
-    }
+    }*/
 
     //Récupération et implémantation de la liste des POIs d'un utilisateur
     /*override fun getUserPOIs(username: String): List<POI> {
@@ -18,7 +18,7 @@ class UserImplementation(val user: User, val appDatabase: AppDatabase) : UserInt
     }*/
 
     //Récupération et implémantation de la liste des POIs pour la création d'une course
-    override fun getRuns(): List<Run> {
+    /* override fun getRuns(): List<Run> {
         //TODO call network  ===> DB distance ===> DB ====> Code
         return listOf(
             Run(
@@ -36,16 +36,16 @@ class UserImplementation(val user: User, val appDatabase: AppDatabase) : UserInt
                 Category("Sport", 12)
             )
         )
-    }
+    }*/
 
-    override fun getMyPosition(): Position {
+    /*override fun getMyPosition(): Position {
         //TODO ask GPS TD
         return Position(5.3522219, 76.856614)
-    }
+    }*/
 
 
-    override fun getUsers(): List<User> {
-        var riri = User("RIRI")
+    //override fun getUsers(): List<User> {
+     /*   var riri = User("RIRI")
         var fifi = User("FIFI")
         var loulou = User("LOULOU")
 
@@ -56,7 +56,7 @@ class UserImplementation(val user: User, val appDatabase: AppDatabase) : UserInt
             riri,
             fifi,
             loulou
-        )
-    }
+        )*/
+   // }
 
 }

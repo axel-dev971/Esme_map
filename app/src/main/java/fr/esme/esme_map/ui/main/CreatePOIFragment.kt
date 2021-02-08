@@ -68,7 +68,7 @@ class CreatePOIFragment : Fragment() {
 
             val intent = Intent().putExtra("poi", string)
 
-            POIRepository().addPOI("Axel",poi)
+            POIRepository().addPOI(ConnexionFragment.Singleton.UserCurrent,poi)
 
             activity?.setResult(1, intent)
 

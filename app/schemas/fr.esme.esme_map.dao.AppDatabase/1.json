@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a5e2ff590fdb9e780319f5dbf8b4c6a7",
+    "identityHash": "2f16200b965dfdfeba66447761cd0c71",
     "entities": [
       {
         "tableName": "POI",
@@ -44,11 +44,17 @@
       },
       {
         "tableName": "User",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`imageUrl` TEXT NOT NULL, `username` TEXT NOT NULL, PRIMARY KEY(`username`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`imageUrl` TEXT NOT NULL, `myPosition` TEXT NOT NULL, `username` TEXT NOT NULL, PRIMARY KEY(`username`))",
         "fields": [
           {
             "fieldPath": "imageUrl",
             "columnName": "imageUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "myPosition",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -124,7 +130,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a5e2ff590fdb9e780319f5dbf8b4c6a7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2f16200b965dfdfeba66447761cd0c71')"
     ]
   }
 }

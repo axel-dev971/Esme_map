@@ -7,10 +7,10 @@ import fr.esme.esme_map.model.User
 
 interface UserInterface {
 
-    fun getPOIs() : List<POI>
+    //fun getPOIs() : List<POI>
     //fun getUserPOIs(name : String): List<POI>
-    fun getRuns() : List<Run>
-    fun getUsers() : List<User>
-    fun getMyPosition() : Position
+    //fun getRuns() : List<Run>
+    //fun getUsers() : List<User>
+    //fun getMyPosition() : Position
 
 }
