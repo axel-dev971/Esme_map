@@ -1,26 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/name_connexion"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:hint="Username"
-        android:layout_marginLeft="60dp"
-        android:layout_marginTop="100dp"
-        />
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="300dp"
+        android:layout_height="125dp"
+        app:cardCornerRadius="@dimen/corner_value">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <EditText
+                android:id="@+id/name_connexion"
+                android:layout_width="250dp"
+                android:background="@drawable/ic_background_textview_connexion"
+                android:layout_height="wrap_content"
+                android:hint="@string/Pseudo_user"
+                android:paddingLeft="20dp"/>
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
 
     <Button
         android:id="@+id/button_connexion"
-        android:layout_width="150dp"
+        android:layout_width="125dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/form_button"
-        android:textColor="@color/white"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="60dp"
-        android:text="@string/connexion_button" />
+        android:background="@drawable/button"
+        android:text="@string/connexion_button"
+        android:layout_marginTop="100dp"
+        android:layout_marginLeft="90dp"
+        android:textColor="@color/white" />
 
-</LinearLayout>
+</RelativeLayout>

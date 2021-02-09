@@ -3,4 +3,12 @@
     <string name="name">Esme Map</string>
 
     <string name="connexion_button">Entrer</string>
+    <string name="register_button">S\'inscrire</string>
+    <string name="Pseudo_user">Pseudo</string>
+    <string name="name_poi">Nom d\'activité</string>
+    <string name="category_poi">Catégorie</string>
+    <string name="add_POI">Ajouter POI</string>
+    <string name="add_User">Inscrivez-vous !</string>
+    <string name="add_button">Enregistrer</string>
+    <string name="change_image">Changer d\'image</string>
 </resources>

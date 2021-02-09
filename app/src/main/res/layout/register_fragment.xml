@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/user_register"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_User"
+        android:textAlignment="center"
+        style="@style/StyleTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="-180dp"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="350dp"
+        android:layout_height="250dp"
+        app:cardCornerRadius="@dimen/corner_value"
+        android:layout_marginLeft="25dp">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/UsernameEdit"
+                android:layout_width="250dp"
+                android:background="@drawable/ic_background_textview_connexion"
+                android:layout_height="wrap_content"
+                android:hint="@string/Pseudo_user"
+                android:paddingLeft="20dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/ImageUserEdit"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    app:cardCornerRadius="35dp"
+                    app:cardElevation="4dp"
+                    android:layout_marginRight="20dp">
+
+                    <ImageView
+                        android:id="@+id/image_user"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/trending1" />
+                </androidx.cardview.widget.CardView>
+
+                <TextView
+                    style="@style/DefaultStyleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/change_image"
+                    app:layout_constraintBottom_toTopOf="@+id/view_separation"
+                    app:layout_constraintStart_toEndOf="@+id/cardView" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/validateButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="130dp"
+        android:layout_marginTop="220dp"
+        android:background="@drawable/button"
+        android:text="@string/add_button"
+        android:textColor="@color/white" />
+</RelativeLayout>
